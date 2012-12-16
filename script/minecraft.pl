@@ -19,6 +19,19 @@ my $home    = $ENV{HOME}
 my $app_dir = "${home}/.minecraft-app"; 
 my $last    = $ARGV[ scalar(@ARGV) -1 ];
 
+sub _show_usage {
+    print STDERR "Minecraft App\n\n";
+    print STDERR "Options:\n";
+    print STDERR "    backup        - Backups Minecraft directory\n";
+    print STDERR "    restore       - Restores Minecraft directory from backup\n";
+    print STDERR "    install <zip> - Installs a mod (Requres zip format)\n\n";
+    print STDERR "Flags:\n";
+    print STDERR "    -h           - This menu\n";
+    print STDERR "    -v|--verbose - More warnings\n";
+    print STDERR "    -j|--jar     - Override location of jar binary\n";
+    exit(0);
+}
+
 while(my $arg = shift @ARGV) {
     for ($arg) {
         if (/^backup$/)     { $backup = 1; }
@@ -26,13 +39,15 @@ while(my $arg = shift @ARGV) {
         elsif (/^install$/) { $mod = 1; }
         elsif (/^-v$|^--verbose$/) { $verbose = 1; }
         elsif (/^-j$|^--jar$/) { $jar_bin = shift @ARGV; }
+        elsif (/^-h$|^--help$/) { _show_usage(); }
     }
 }
 
 $mod = $last
     if $mod;
 
-print $_ . "\n" for ( @ARGV );
+_show_usage()
+    if not $mod and not $backup and not $restore;
 
 sub _create_config {
     open my $cfg, '>', "${app_dir}/config.yml" or
