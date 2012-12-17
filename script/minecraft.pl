@@ -135,7 +135,7 @@ sub _run_install {
         if (-e $mod) {
             my ($ext) = $mod =~ /(\.[^.]+)$/;
             if ($ext ne '.zip') {
-                die "Mod file type must be .zip\n";
+                die "[error] Mod file type must be .zip\n";
             }
             my $err;
             my $zip = Archive::Zip->new();
