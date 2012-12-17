@@ -82,7 +82,6 @@ INITIALIZATORING: {
         if (not -e $jar_bin) {
             say "Failed" if $verbose;
             die "[error] Could not find 'jar' binary in $jar_bin\n";
-            exit(1);
         }
         else {
             say "Found in ${jar_bin}" if $verbose;
@@ -102,7 +101,6 @@ INITIALIZATORING: {
             else {
                 say "Failed" if $verbose;
                 die "[error] Could not find the 'jar' binary in your paths or config\n";
-                exit(1);
             }
         }
     }
@@ -110,7 +108,6 @@ INITIALIZATORING: {
 
 if ($backup and $restore) {
     die "[stupidity] Why are you trying to backup and restore at the same time?\n";
-    exit(1);
 }
 
 sub _run_backup {
@@ -120,7 +117,6 @@ sub _run_backup {
     }
     else {
         die "[error] Backup failed\n";
-        exit(1);
     }
 }
 
@@ -131,20 +127,22 @@ sub _run_restore {
     }
     else {
         die "[error] Restore failed\n";
-        exit(1);
     }
 }
 
 sub _run_install {
     if ($mod) {
         if (-e $mod) {
+            my ($ext) = $mod =~ /(\.[^.]+)$/;
+            if ($ext ne '.zip') {
+                die "Mod file type must be .zip\n";
+            }
             my $err;
             my $zip = Archive::Zip->new();
             say "[info] Installing ${mod}... ";
             print "[info] Verifying Zip... ";
             unless ($zip->read($mod) == AZ_OK) {
                 die "Failed\n";
-                exit(1);
             }
 
             rmtree "${app_dir}/jar"
@@ -157,7 +155,7 @@ sub _run_install {
             $err = `$jar_bin -xf ${home}/.minecraft/bin/minecraft.jar`;
 
             if ($err) {
-                die "[error} Failed extracting minecraft jar file\n";
+                print STDERR "[error} Failed extracting minecraft jar file\n";
                 chdir("${app_dir}");
                 rmtree "${app_dir}/jar";
                 exit(1);
@@ -180,7 +178,6 @@ sub _run_install {
 
             if ($err) {
                 die "[error] There was a problem making minecraft.jar -- Please restore\n";
-                exit(1);
             }
 
             chdir("${app_dir}");
@@ -190,12 +187,10 @@ sub _run_install {
         }
         else {
             die "[error] Can't find mod ${mod}\n";
-            exit(1);
         }
     }
     else {
         die "[error] No mod was chosen to be installed\n";
-        exit(1);
     }    
 }
 
